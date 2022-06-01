@@ -9,16 +9,40 @@
 		  {% if messages %}
 		    <ul class=flashes>
 		    {% for message in messages %}
-				<div class="alert alert-danger" role="alert">
+				<div class="alert alert-warning alert-dismissible fade show" role="alert">
 		         {{ message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 				</div>
 		    {% endfor %}
 		    </ul>
 		  {% endif %}
 		{% endwith %}
 		{% if username %}
-		<div class="alert alert-success" role="alert">
-         Welcome {{ username }} <a href="{{ url_for('logout') }}" class="alert-link"> Click Here </a> to logout.
+		<div class="row">
+			<div class="offset-md-2 col-md-8 offset-md-2">
+				<h3>All Devices</h3>
+				<a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm float-end">Logout</a>
+				<table class="table table-bordered table-striped">
+				  <thead>
+					<tr>
+						<th scope="col">#</th>
+					  <th scope="col">IP</th>
+					  <th scope="col">LAN_IP</th>
+					  <th scope="col">MAC_ADDRESS</th>
+					</tr>
+				  </thead>
+				  <tbody>
+				   {% for result in final_results %}
+					<tr>
+						<td>{{loop.index}}</td>
+					  <td>{{ result.IP}}</td>
+					  <td>{{ result.LAN_IP}}</td>
+					  <td>{{ result.MAC_ADDRESS}}</td>
+					</tr>
+					{% endfor %}
+				  </tbody>
+				</table>
+			</div>
 		</div>
 
 		{% else %}
