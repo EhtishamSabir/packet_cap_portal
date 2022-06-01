@@ -11,7 +11,8 @@ app.config['SECRET_KEY'] = 'SUPER SECRET'
 def home():
     username = request.cookies.get('username')
     if username:
-        return render_template('home.html', username=username)
+        # return render_template('home.html', username=username)
+        return redirect("/devices")
     return render_template('home.html')
 
 
@@ -42,15 +43,38 @@ def logout():
 
 @app.route('/devices', methods=['GET'])
 def devices(test=True):
-    if test:
-        return [{'IP': '_gateway', 'LAN_IP': '10.255.255.254', 'MAC_ADDRESS': '00:10:db:ff:10:01'},
-                {'IP': '?', 'LAN_IP': '172.18.0.2', 'MAC_ADDRESS': '02:42:ac:12:00:02'},
-                {'IP': '?', 'LAN_IP': '10.255.255.101', 'MAC_ADDRESS': '70:4c:a5:81:38:78'}]
-    full_results = [re.findall('^[\w\?\.]+|(?<=\s)\([\d\.]+\)|(?<=at\s)[\w\:]+', i) for i in os.popen('arp -a')]
-    final_results = [dict(zip(['IP', 'LAN_IP', 'MAC_ADDRESS'], i)) for i in full_results]
-    final_results = [{**i, **{'LAN_IP': i['LAN_IP'][1:-1]}} for i in final_results]
+    # if test:
 
-    return final_results
+        final_results=[
+                       {
+                          "IP":"_gateway",
+                          "LAN_IP":"10.255.255.254",
+                          "MAC_ADDRESS":"00:10:db:ff:10:01"
+                       },
+                       {
+                          "IP":"?",
+                          "LAN_IP":"172.18.0.2",
+                          "MAC_ADDRESS":"02:42:ac:12:00:02"
+                       },
+                       {
+                          "IP":"?",
+                          "LAN_IP":"10.255.255.101",
+                          "MAC_ADDRESS":"70:4c:a5:81:38:78"
+                       }
+                    ]
+        username = request.cookies.get('username')
+        if username:
+                return render_template('home.html',
+                                       username=username,
+                                       final_results=final_results)
+        # return render_template('home.html')
+
+    # full_results = [re.findall('^[\w\?\.]+|(?<=\s)\([\d\.]+\)|(?<=at\s)[\w\:]+', i) for i in os.popen('arp -a')]
+    # final_results = [dict(zip(['IP', 'LAN_IP', 'MAC_ADDRESS'], i)) for i in full_results]
+    # final_results = [{**i, **{'LAN_IP': i['LAN_IP'][1:-1]}} for i in final_results]
+
+    # return final_results
+    #     return render_template('home.html',final_results)
 
 
 app.run(host='0.0.0.0', port=80, debug=True)
