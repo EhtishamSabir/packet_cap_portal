@@ -1,6 +1,6 @@
 import os
 import re
-
+from pathlib import Path
 from flask import Flask, render_template, request, make_response, flash, redirect
 
 app = Flask(__name__)
@@ -51,6 +51,16 @@ def devices(test=True):
     final_results = [{**i, **{'LAN_IP': i['LAN_IP'][1:-1]}} for i in final_results]
 
     return final_results
+
+
+@app.route('/captured', methods=['GET'])
+def get_files(pth='./captured', ext=".pcapng"):
+    pth = Path(pth)
+    files_path = []
+    for each_file in list(filter(lambda y: y.is_file(), pth.iterdir())):
+        if each_file.suffix == ext:
+            files_path.append(each_file)
+    return files_path
 
 
 app.run(host='0.0.0.0', port=80, debug=True)
