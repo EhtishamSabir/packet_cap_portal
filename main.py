@@ -2,6 +2,9 @@ import os
 import re
 from pathlib import Path
 from flask import Flask, render_template, request, make_response, flash, redirect
+from packet_processor import process_file
+import threading
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SUPER SECRET'
@@ -14,7 +17,6 @@ def home():
         # return render_template('home.html', username=username)
         return redirect("/devices")
     return render_template('home.html')
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -82,6 +84,43 @@ def get_files(pth='./captured', ext=".pcapng"):
         if each_file.suffix == ext:
             files_path.append(each_file)
     return files_path
+
+
+files_in_queue = []
+processed_files = []
+processing = []
+
+
+@app.route('/process_file', methods=['GET'])
+def cap_file_queue():
+    filename = request.args.get('filename')
+    if filename is None:
+        print("it's none")
+        return {"queue": files_in_queue}
+    if filename in files_in_queue:
+        print("already in queue")
+    elif filename not in processed_files and filename not in [x['file'] for x in processing]:
+        files_in_queue.append(filename)
+    return {"queue": files_in_queue}
+
+
+@app.route('/start_processing', methods=['GET'])
+def process_cap_file():
+    for filename in files_in_queue:
+        print("file in queue")
+        t = threading.Thread(target=process_file, args=(filename,))
+        t.start()
+        processing.append({"file": filename, "time": datetime.now().__str__(), "info": t})
+        files_in_queue.remove(filename)
+
+    for process in processing:
+        if not process['info'].is_alive():
+            processing.remove(process)
+            processed_files.append(process['file'])
+
+    return {"processed": processed_files,
+            "processing": [len(processing), [x['file'] + "|" + x['time'] for x in processing]],
+            "queue": files_in_queue}
 
 
 app.run(host='0.0.0.0', port=80, debug=True)
