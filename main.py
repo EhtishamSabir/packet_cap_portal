@@ -16,6 +16,7 @@ def home():
     return render_template('home.html')
 
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     username = request.cookies.get('username')
