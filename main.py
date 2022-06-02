@@ -83,7 +83,6 @@ def get_files(pth='./captured', ext=".pcapng"):
     for each_file in list(filter(lambda y: y.is_file(), pth.iterdir())):
         if each_file.suffix == ext:
             files_path.append(each_file.__str__())
-    print(files_path)
     return {"files": files_path}
 
 
