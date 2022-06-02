@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 from flask import Flask, render_template, request, make_response, flash, redirect
-from packet_processor import process_file
+from packet_processor import process_file, start_capture_into_flie, stop_capture, capture_processing
 import threading
 from datetime import datetime
 
@@ -121,6 +121,24 @@ def process_cap_file():
     return {"processed": processed_files,
             "processing": [len(processing), [x['file'] + "|" + x['time'] for x in processing]],
             "queue": files_in_queue}
+
+
+yes = True
+
+
+@app.route('/start_livecapture', methods=['GET'])
+def start_livecapture():
+    global yes
+    if yes:
+        yes = False
+        return start_capture_into_flie("today", '1', '10')
+
+    return capture_processing
+
+
+@app.route('/stop_capture', methods=['GET'])
+def stop_livecapture():
+    return stop_capture('1')
 
 
 app.run(host='0.0.0.0', port=80, debug=True)
