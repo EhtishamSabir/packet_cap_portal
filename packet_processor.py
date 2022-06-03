@@ -4,6 +4,9 @@ from operator import attrgetter
 from db_helper import get_client
 import os, re
 from time import sleep
+from datetime import datetime
+import subprocess
+import threading
 
 
 def get_attrb(pth, packet, default=None):
@@ -24,6 +27,19 @@ def get_devices_ip_mac(test=True):
     return final_results
 
 
+def get_devices(test=True):
+    if test:
+        return '''1. ciscodump (Cisco remote capture)
+2. dpauxmon (DisplayPort AUX channel monitor capture)
+3. randpkt (Random packet generator)
+4. sdjournal (systemd Journal Export)
+5. sshdump (SSH remote capture)
+6. udpdump (UDP Listener remote capture)
+'''
+
+    return subprocess.check_output("tshark -D", shell=True).decode('utf')
+
+
 # parser
 def packet_parser(packet, options):
     dct = {}
@@ -33,15 +49,18 @@ def packet_parser(packet, options):
     return dct
 
 
+def feilds():
+    with open('fields', 'r') as f:
+        return f.readlines()
+
+
 def process_file(filename):
-    print('runing file ',filename)
+    print('runing file ', filename)
     sleep(10 * 1)
     print("file is finished")
     return
 
-
-    with open('fields', 'r') as f:
-        options = f.readlines()
+    options = feilds
 
     # reading captured file
     cap = pyshark.FileCapture(filename)
@@ -66,3 +85,32 @@ def process_file(filename):
     except OSError:
         print("processing finished.")
     return
+
+
+capture_processing = {'interface': []}
+queue = {}
+
+
+def start_capture_into_flie(filename, interface, interval_seconds):
+    # live capture example
+    if interface not in capture_processing['interface']:
+        p = subprocess.Popen(f'tshark -i {interface} -b interval:{interval_seconds} -w captured/{filename}.pcapng',
+                             shell=True)
+        queue[interface]['process'] = p
+        capture_processing['interface'].append(interface)
+    return capture_processing
+
+
+def stop_capture(interface):
+    try:
+        if queue[interface]['thread'].is_alive():
+            print("trying to stop")
+            os.kill(queue[interface]['process'].pid)
+            queue.pop(interface)
+        return str(queue)
+    except KeyError:
+        return "error"
+
+
+if __name__ == '__main__':
+    start_capture_into_flie("today", '1', '10')
