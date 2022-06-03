@@ -93,14 +93,15 @@ processing = []
 
 @app.route('/process_file', methods=['GET'])
 def cap_file_queue():
-    filename = request.args.get('filename')
-    if filename is None:
+    global files_in_queue
+    filenames = list(request.args.get('filenames'))
+    if filenames is None:
         print("it's none")
         return {"queue": files_in_queue}
-    if filename in files_in_queue:
-        print("already in queue")
-    elif filename not in processed_files and filename not in [x['file'] for x in processing]:
-        files_in_queue.append(filename)
+    for each_file in filenames:
+        if each_file in files_in_queue:
+            filenames.remove(each_file)
+    files_in_queue = files_in_queue + filenames
     return {"queue": files_in_queue}
 
 

@@ -55,6 +55,7 @@ def feilds():
 
 
 def process_file(filename):
+    # add check if file exists
     print('runing file ', filename)
     sleep(10 * 1)
     print("file is finished")
@@ -94,9 +95,9 @@ queue = {}
 def start_capture_into_flie(filename, interface, interval_seconds):
     # live capture example
     if interface not in capture_processing['interface']:
-        p = subprocess.Popen(f'tshark -i {interface} -b interval:{interval_seconds} -w captured/{filename}.pcapng',
+        p = subprocess.check_output(f'tshark -i {interface} -b interval:{interval_seconds} -w captured/{filename}.pcapng',
                              shell=True)
-        queue[interface]['process'] = p
+        queue[interface] = {"process": p}
         capture_processing['interface'].append(interface)
     return capture_processing
 
@@ -104,12 +105,12 @@ def start_capture_into_flie(filename, interface, interval_seconds):
 def stop_capture(interface):
     try:
         if queue[interface]['thread'].is_alive():
-            print("trying to stop")
+            print("trying to stop",queue[interface]['process'].pid)
             os.kill(queue[interface]['process'].pid)
             queue.pop(interface)
         return str(queue)
-    except KeyError:
-        return "error"
+    except Exception as e:
+        return str(e)
 
 
 if __name__ == '__main__':
