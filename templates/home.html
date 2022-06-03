@@ -7,6 +7,8 @@
 	<body>
 	<div class="container mt-3">
 
+		{% if username %}
+
 		<ul class="nav nav-tabs" style="width:750px !important;">
 		  <li class="active"><a data-toggle="tab" href="#home">All Devices</a></li>
 		  <li><a data-toggle="tab" href="#files_list">Files List</a></li>
@@ -111,8 +113,6 @@
 		    </ul>
 		  {% endif %}
 		{% endwith %}
-		{% if username %}
-
 		{% else %}
 		<div class="alert alert-danger" role="alert">
          You are not logged in.<a href="{{ url_for('login') }}" class="alert-link">Click here</a> to login.
