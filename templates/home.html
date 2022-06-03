@@ -1,27 +1,26 @@
 <html>
 	<head>
 		<title>Home</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 	</head>
 	<body>
 	<div class="container mt-3">
-		{% with messages = get_flashed_messages() %}
-		  {% if messages %}
-		    <ul class=flashes>
-		    {% for message in messages %}
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-		         {{ message }}
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>
-		    {% endfor %}
-		    </ul>
-		  {% endif %}
-		{% endwith %}
-		{% if username %}
-		<div class="row">
-			<div class="offset-md-2 col-md-8 offset-md-2">
+
+		<ul class="nav nav-tabs" style="width:750px !important;">
+		  <li class="active"><a data-toggle="tab" href="#home">All Devices</a></li>
+		  <li><a data-toggle="tab" href="#files_list">Files List</a></li>
+		  <li><a data-toggle="tab" href="#queue">Queue</a></li>
+		</ul>
+			<a href="{{ url_for('logout') }}" class=" mt-4 btn btn-danger btn-sm float-end">Logout</a>
+
+		<div class="tab-content">
+		  <div id="home" class="tab-pane fade in active">
+			  	{% with messages = get_flashed_messages() %}
 				<h3>All Devices</h3>
-				<a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm float-end">Logout</a>
+			  {% if username %}
+		     <div class="row">
+			<div class="offset-md-2 col-md-8 offset-md-2">
 				<table class="table table-bordered table-striped">
 				  <thead>
 					<tr>
@@ -44,6 +43,75 @@
 				</table>
 			</div>
 		</div>
+              {% endif %}
+		  </div>
+		  <div id="files_list" class="tab-pane fade">
+				<h3>All Files</h3>
+				  {% if username %}
+				 <div class="row">
+				<div class="offset-md-2 col-md-8 offset-md-2">
+					<table class="table table-bordered table-striped" id="files">
+					  <thead>
+						<tr>
+							<th scope="col">#</th>
+						  <th scope="col">File Name</th>
+						  <th scope="col">Action</th>
+						</tr>
+					  </thead>
+					  <tbody>
+
+					  </tbody>
+					</table>
+				</div>
+			</div>
+				  {% endif %}
+		  </div>
+		  <div id="queue" class="tab-pane fade">
+			<h3>Queue Files</h3>
+				  {% if username %}
+				 <div class="row">
+				<div class="offset-md-2 col-md-8 offset-md-2">
+					<a href="javascript:void(0)" class="btn btn-md btn-info" id="start_process">Start Process</a>
+					<table class="table table-bordered table-striped" id="files_queue">
+					  <thead>
+						<tr>
+							<th scope="col">#</th>
+						  <th scope="col">File Name</th>
+						</tr>
+					  </thead>
+					  <tbody>
+
+					  </tbody>
+					</table>
+					<div class="result">
+						<h3>All Processed Files</h3>
+							<p id="files_processed">Loading…
+                             █▒▒▒▒▒▒▒▒▒</p>
+						<h3>All files in processing queue</h3>
+							<p id="files_in_queue">
+								Loading…
+								█▒▒▒▒▒▒▒▒▒
+							</p>
+
+					</div>
+
+				</div>
+			</div>
+				  {% endif %}
+		  </div>
+		</div>
+		  {% if messages %}
+		    <ul class=flashes>
+		    {% for message in messages %}
+				<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		         {{ message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+		    {% endfor %}
+		    </ul>
+		  {% endif %}
+		{% endwith %}
+		{% if username %}
 
 		{% else %}
 		<div class="alert alert-danger" role="alert">
@@ -51,6 +119,83 @@
 		</div>
 		{% endif %}
 		</div>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script>
+	$(function() {
+	$('.result').hide();
+		$(document).on('click','.start',function(e) {
+		  	file=$(this).data('name');
+		  	$.ajax({
+			url: "/process_file?filename="+file,
+			type: 'GET',
+			dataType: 'json', // added data type
+			success: function(res) {
+				  	alert('Process added in queue');
+				  	location.reload();
+				 }
+		    });
+		});
+		$(document).on('click','#start_process',function(e) {
+		var rowCount = $('#files_queue >tbody >tr').length;
+		$('.result').show();
+			var timer = setInterval(function() {
+				$.ajax({
+					url: "/start_processing",
+					type: 'GET',
+					dataType: 'json', // added data type
+					success: function(res) {
+					      var val=res.processed;
+                            if(res.processed.length!=0){
+							$('#files_processed').text(res.processed);
+							}
+							if(res.processing.length!=0 && res.processing !='0,'){
+							$('#files_in_queue').text(res.processing);
+							}else{
+							$('#files_in_queue').text('100% ██████████');
+							}
+							if(val.length==rowCount){
+							clearInterval(timer)
+							}
+						 }
+				});
+		},6000);
+
+
+		});
+
+		$.ajax({
+			url: "/captured",
+			type: 'GET',
+			dataType: 'json', // added data type
+			success: function(res) {
+				$.each(res.files, function (index, value)
+				  {
+				  filename=value.replace('captured\\','');
+					 $('#files').append('<tr> <td>' + index + '</td><td>' + filename + '</td><td> <a class="start btn btn-sm btn-success" href="JavaScript:void(0)" data-name="'+ filename+'">Process File</a></td></tr>');
+				  })
+				 }
+		});
+			$.ajax({
+				url: "/process_file",
+				type: 'GET',
+				dataType: 'json', // added data type
+				success: function(res) {
+				if(res.queue ==0){
+				$('#files_queue').append('<div class="alert alert-danger" role="alert">No File found in Queue !</div>');
+				$('#start_process').hide();
+				}else{
+					$.each(res.queue, function (index, value)
+					  {
+						 $('#files_queue').append('<tr> <td>' + index + '</td><td>' + value + '</td></tr>');
+					  })
+					 }
+				}
+			});
+
+
+	});
+
+	</script>
 	</body>
 </html>
