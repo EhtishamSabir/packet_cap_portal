@@ -9,7 +9,7 @@
 
 		{% if username %}
 
-		<ul class="nav nav-tabs" style="width:750px !important;">
+		<ul class="nav nav-tabs" style="width:750px !important;" id="mytab">
 		  <li class="active"><a data-toggle="tab" href="#home">All Devices</a></li>
 		  <li><a data-toggle="tab" href="#files_list">Files List</a></li>
 		  <li><a data-toggle="tab" href="#queue">Queue</a></li>
@@ -123,6 +123,13 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 	<script>
 	$(function() {
+	$('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+		localStorage.setItem('activeTab', $(e.target).attr('href'));
+	});
+	var activeTab = localStorage.getItem('activeTab');
+	if(activeTab){
+		$('#myTab a[href="' + activeTab + '"]').tab('show');
+	}
 	$('.result').hide();
 		$(document).on('click','.start',function(e) {
 		  	file=$(this).data('name');
