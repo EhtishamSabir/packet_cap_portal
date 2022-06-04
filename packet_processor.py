@@ -2,7 +2,7 @@ import pymongo
 import pyshark
 from operator import attrgetter
 from db_helper import get_client
-import os, re, signal
+import os, re
 from time import sleep
 from datetime import datetime
 import subprocess
@@ -27,16 +27,7 @@ def get_devices_ip_mac(test=True):
     return final_results
 
 
-def get_devices(test=True):
-    if test:
-        return '''1. ciscodump (Cisco remote capture)
-2. dpauxmon (DisplayPort AUX channel monitor capture)
-3. randpkt (Random packet generator)
-4. sdjournal (systemd Journal Export)
-5. sshdump (SSH remote capture)
-6. udpdump (UDP Listener remote capture)
-'''
-
+def get_devices():
     return subprocess.check_output("tshark -D", shell=True).decode('utf')
 
 

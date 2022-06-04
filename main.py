@@ -1,5 +1,3 @@
-import os
-import re
 from pathlib import Path
 from flask import Flask, render_template, request, make_response, flash, redirect
 from packet_processor import process_file, start_capture_into_flie, stop_capture, refresh, live_stats, get_devices
