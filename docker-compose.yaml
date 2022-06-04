@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+      - 80:80
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/data/db
+      - ./shark-app:/var/www/html
+      - /captured/:/captured/
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root

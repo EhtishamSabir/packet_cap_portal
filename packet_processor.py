@@ -16,17 +16,6 @@ def get_attrb(pth, packet, default=None):
         return default
 
 
-def get_devices_ip_mac(test=True):
-    if test:
-        return [{'IP': '_gateway', 'LAN_IP': '10.255.255.254', 'MAC_ADDRESS': '00:10:db:ff:10:01'},
-                {'IP': '?', 'LAN_IP': '172.18.0.2', 'MAC_ADDRESS': '02:42:ac:12:00:02'},
-                {'IP': '?', 'LAN_IP': '10.255.255.101', 'MAC_ADDRESS': '70:4c:a5:81:38:78'}]
-    full_results = [re.findall('^[\w\?\.]+|(?<=\s)\([\d\.]+\)|(?<=at\s)[\w\:]+', i) for i in os.popen('arp -a')]
-    final_results = [dict(zip(['IP', 'LAN_IP', 'MAC_ADDRESS'], i)) for i in full_results]
-    final_results = [{**i, **{'LAN_IP': i['LAN_IP'][1:-1]}} for i in final_results]
-    return final_results
-
-
 def get_devices():
     return subprocess.check_output("tshark -D", shell=True).decode('utf')
 
