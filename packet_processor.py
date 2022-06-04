@@ -2,11 +2,11 @@ import pymongo
 import pyshark
 from operator import attrgetter
 from db_helper import get_client
-import os, re
+import os, re, signal
 from time import sleep
 from datetime import datetime
 import subprocess
-import threading
+from config_data import *
 
 
 def get_attrb(pth, packet, default=None):
@@ -51,7 +51,7 @@ def packet_parser(packet, options):
 
 def feilds():
     with open('fields', 'r') as f:
-        return f.readlines()
+        return list(f.readlines())
 
 
 def process_file(filename):
@@ -88,29 +88,61 @@ def process_file(filename):
     return
 
 
-capture_processing = {'interface': []}
-queue = {}
-
-
 def start_capture_into_flie(filename, interface, interval_seconds):
+    global process_queue
     # live capture example
     if interface not in capture_processing['interface']:
-        p = subprocess.check_output(f'tshark -i {interface} -b interval:{interval_seconds} -w captured/{filename}.pcapng',
+        print("start")
+        p = subprocess.Popen(f'tshark -i {interface} -b interval:{interval_seconds} -w /captured/{filename}.pcapng',
                              shell=True)
-        queue[interface] = {"process": p}
+        o = subprocess.check_output(f"ps -ax | grep tshark", shell=True).decode("utf-8")
+        print(o)
+
+        i_queue = []
+        for p in [p.split(' ')[1] for p in o.splitlines() if '-c ps -ax' not in p]:
+            if p not in process_queue:
+                i_queue.append(p)
+        process_queue = process_queue + i_queue
+        queue[interface] = {"process": i_queue}
+
+        print(queue)
+        print(process_queue)
         capture_processing['interface'].append(interface)
+    syn_config()
     return capture_processing
 
 
 def stop_capture(interface):
+    global process_queue
+    for pid in queue[interface]['process']:
+        print("trying to stop", pid, ":::")
+        try:
+            o = subprocess.check_output(f"kill -9 {pid}", shell=True).decode("utf-8")
+            print(o)
+            process_queue = list(set(process_queue))
+            process_queue.remove(pid)
+        except subprocess.CalledProcessError:
+            print("process not found")
+        except KeyError:
+            print("process queue pop error")
+    if queue:
+        print(queue)
+        queue.pop(interface)
+        capture_processing['interface'].remove(interface)
+    syn_config()
+    return {"queue": queue}
+
+
+def live_stats():
+    return {"queue": queue}
+
+
+def refresh():
     try:
-        if queue[interface]['thread'].is_alive():
-            print("trying to stop",queue[interface]['process'].pid)
-            os.kill(queue[interface]['process'].pid)
-            queue.pop(interface)
-        return str(queue)
-    except Exception as e:
-        return str(e)
+        subprocess.check_output("pkill tshark", shell=True)
+    except subprocess.CalledProcessError:
+        return
+    return
 
 
 if __name__ == '__main__':

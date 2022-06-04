@@ -2,9 +2,10 @@ import os
 import re
 from pathlib import Path
 from flask import Flask, render_template, request, make_response, flash, redirect
-from packet_processor import process_file, start_capture_into_flie, stop_capture, capture_processing
+from packet_processor import process_file, start_capture_into_flie, stop_capture, refresh, live_stats
 import threading
 from datetime import datetime
+from config_data import *
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SUPER SECRET'
@@ -77,18 +78,13 @@ def devices(test=True):
 
 
 @app.route('/captured', methods=['GET'])
-def get_files(pth='./captured', ext=".pcapng"):
+def get_files(pth='/captured', ext=".pcapng"):
     pth = Path(pth)
     files_path = []
     for each_file in list(filter(lambda y: y.is_file(), pth.iterdir())):
         if each_file.suffix == ext:
             files_path.append(each_file.__str__())
     return {"files": files_path}
-
-
-files_in_queue = []
-processed_files = []
-processing = []
 
 
 @app.route('/process_file', methods=['GET'])
@@ -102,6 +98,7 @@ def cap_file_queue():
         if each_file in files_in_queue:
             filenames.remove(each_file)
     files_in_queue = files_in_queue + filenames
+    syn_config()
     return {"queue": files_in_queue}
 
 
@@ -118,28 +115,31 @@ def process_cap_file():
         if not process['info'].is_alive():
             processing.remove(process)
             processed_files.append(process['file'])
-
+    CONFIG_DATA['files_in_queue'] = files_in_queue
+    CONFIG_DATA.sync()
+    syn_config()
     return {"processed": processed_files,
             "processing": [len(processing), [x['file'] + "|" + x['time'] for x in processing]],
             "queue": files_in_queue}
 
 
-yes = True
-
-
 @app.route('/start_livecapture', methods=['GET'])
 def start_livecapture():
-    global yes
-    if yes:
-        yes = False
-        return start_capture_into_flie("today", '1', '10')
-
-    return capture_processing
+    interface_id = request.args.get('interface_id')
+    try:
+        interface_id = int(interface_id)
+    except TypeError:
+        return "not valid ID"
+    return start_capture_into_flie(f"today{interface_id}", str(interface_id), '10')
 
 
 @app.route('/stop_capture', methods=['GET'])
 def stop_livecapture():
-    return stop_capture('1')
+    interface_id = request.args.get('interface_id')
+    return stop_capture(str(interface_id))
 
-
+@app.route('/stats', methods=['GET'])
+def get_stats():
+    return live_stats()
+refresh()
 app.run(host='0.0.0.0', port=80, debug=True)
