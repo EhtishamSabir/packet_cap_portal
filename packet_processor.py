@@ -140,9 +140,14 @@ def live_stats():
 def refresh():
     try:
         subprocess.check_output("pkill tshark", shell=True)
+        process_queue.clear()
     except subprocess.CalledProcessError:
         return
     return
+
+
+def get_devices():
+    return subprocess.check_output('tshark -D', shell=True).decode('utf-8')
 
 
 if __name__ == '__main__':
