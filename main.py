@@ -68,7 +68,10 @@ def get_files(pth='/captured', ext=".pcapng"):
 @app.route('/process_file', methods=['GET'])
 def cap_file_queue():
     global files_in_queue
-    filenames = request.get_json(force=True)['files']
+    try:
+        filenames = request.get_json(force=True)['files']
+    except:
+        return {"queue": files_in_queue}
     print(filenames)
     if filenames is None:
         print("it's none")
@@ -78,7 +81,7 @@ def cap_file_queue():
             filenames.remove(each_file)
     files_in_queue = files_in_queue + filenames
     syn_config()
-    return {"queue": files_in_queue}
+    return {"queue": files_in_queue, "processing": len(processing), "processed": processed_files}
 
 
 @app.route('/start_processing', methods=['GET'])
