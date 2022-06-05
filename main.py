@@ -50,6 +50,7 @@ def devices():
 
     username = request.cookies.get('username')
     if username:
+        # print(final_results)
         return render_template('home.html',
                                username=username,
                                final_results=final_results)

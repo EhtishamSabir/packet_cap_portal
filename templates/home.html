@@ -1,217 +1,244 @@
 <html>
-	<head>
-		<title>Home</title>
+   <head>
+      <title>Home</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+   </head>
+   <body>
+      <div class="container mt-3">
+         {% if username %}
+<!--         <a href="{{ url_for('logout') }}" class=" mt-4 btn btn-danger btn-sm float-end">Logout</a>-->
+         <ul class="nav nav-tabs" style="width:750px !important;" id="mytab">
+            <li class="active"><a data-toggle="tab" href="#home">All Devices</a></li>
+            <li><a data-toggle="tab" href="#queue">Queue</a></li>
+            <li><a data-toggle="tab" href="#settings">Settings</a></li>
+			 <li><a class="btn btn-danger" href="{{ url_for('logout') }}">Logout</a></li>
+         </ul>
+         <div class="tab-content">
+            <div id="home" class="tab-pane fade in active">
+               {% with messages = get_flashed_messages() %}
+               <h3>All Devices</h3>
+               {% if username %}
+               <div class="row">
+                  <div class="offset-md-2 col-md-8 offset-md-2">
+                     <div class="row">
+                        <div class="col-md-6">
+                           <div class="alert alert-warning" role="alert">
+                              Start Capturing & save into file according to interval!
+                           </div>
+                        </div>
+                        <div class="col-md-6">
+                           <a class="btn btn-sm btn-info" id="livecapture"> Start Live Capturing! </a>
+                           <a class="btn btn-sm btn-danger" id="stopcapture"> Stop Live Capturing! </a>
+                        </div>
+                     </div>
+                     <table class="table table-bordered table-striped">
+                        <thead>
+                           <tr>
+                              <th scope="col">#</th>
+                              <th scope="col">Devices</th>
+                              <th scope="col">Start Capture</th>
+                              <th scope="col">Stop Capture</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for result in final_results['devices'] %}
+                           <tr>
+                              <td>{{ loop.index}}</td>
+                              <td>{{ result}}</td>
+                              <td>
+                                 <div class="form-check">
+                                    <input class="form-check-input" data-name="{{loop.index}}" type="checkbox" name="livecapture">
+                                 </div>
+                              </td>
+                              <td>
+                                 <div class="form-check">
+                                    <input class="form-check-input" data-name="{{loop.index}}" type="checkbox" name="stopcapture">
+                                 </div>
+                              </td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+               {% endif %}
+            </div>
+            <div id="queue" class="tab-pane fade">
+               <h3>Queue Files</h3>
+               <div class="row">
+                  <div class="col-md-6">
+                     <div class="alert alert-warning" role="alert">
+                        Note: All required feilds will be save into mongoDB!
+                     </div>
+                  </div>
+                  <div class="col-md-6">
+                     <a href="javascript:void(0)" class="btn btn-md btn-info" id="start_process">Start Process</a>
+                  </div>
+               </div>
+               {% if username %}
+               <div class="row">
+                  <div class="offset-md-2 col-md-8 offset-md-2">
+                     <div id="waitttAmazingLover" style="color: deepskyblue;display: none;position:absolute;top:24%;left:13%;padding:2px;text-align: center;width: 242px;">
+                        <img src="https://www.w3schools.com/jquery/demo_wait.gif" width="64" height="64"><br>Waiting..
+                     </div>
+                     <div class="result">
+                        <h3>Queue: <span id="files_in_queue"></span></h3>
+                        <h3>Processing: <span id="files_in_processing"></span></h3>
+                        <h3>Processed: <span id="files_in_processed"></span></h3>
+                     </div>
+                  </div>
+               </div>
+               {% endif %}
+            </div>
+            <div id="settings" class="tab-pane fade">
+               <h3>Settings</h3>
+               {% if username %}
+               <div class="row">
+                  <div class="offset-md-5 col-md-2 offset-md-5">
+                     <ul class="nav flex-column">
+					  <li class="nav-item">
+						<a class="nav-link " href="#">Interval in seconds</a>
+					  </li>
+					  <li class="nav-item">
+						<a class="nav-link " href="#">Folds update</a>
+					  </li>
+					  <li class="nav-item">
+						<a class="nav-link " href="#">Stop all thread</a>
+					  </li>
+						 <li class="nav-item">
+						<a class="nav-link " href="#">Delete Processed</a>
+					  </li>
+					</ul>
+                  </div>
+               </div>
+               {% endif %}
+            </div>
+         </div>
+         {% if messages %}
+         <ul class=flashes>
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+               {{ message }}
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+         </ul>
+         {% endif %}
+         {% endwith %}
+         {% else %}
+         <div class="alert alert-danger" role="alert">
+            You are not logged in.<a href="{{ url_for('login') }}" class="alert-link">Click here</a> to login.
+         </div>
+         {% endif %}
+      </div>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script>
+         $(function() {
+         $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+         	localStorage.setItem('activeTab', $(e.target).attr('href'));
+         });
+         var activeTab = localStorage.getItem('activeTab');
+         if(activeTab){
+         	$('#myTab a[href="' + activeTab + '"]').tab('show');
+         }
+         $('#livecapture').click(function(){
+         	$('input[name="livecapture"]:checked').each(function() {
+           		var name=$(this).data("name")
+                  <!--   	ajax		-->
+                  		$.ajax({
+         		url: "start_livecapture?interface_id="+name,
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+         			  location.reload();
+         			 }
+         	    });
+         		<!--      end    -->
+         	});
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-	</head>
-	<body>
-	<div class="container mt-3">
+         });
+         $('#stopcapture').click(function(){
+         	$('input[name="stopcapture"]:checked').each(function() {
+           		var name=$(this).data("name")
+                  <!--   	ajax		-->
+                  		$.ajax({
+         		url: "/stop_capture?interface_id="+name,
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+         		location.reload();
 
-		{% if username %}
+         			 }
+         	    });
+         		<!--      end    -->
+         	});
 
-		<ul class="nav nav-tabs" style="width:750px !important;" id="mytab">
-		  <li class="active"><a data-toggle="tab" href="#home">All Devices</a></li>
-		  <li><a data-toggle="tab" href="#files_list">Files List</a></li>
-		  <li><a data-toggle="tab" href="#queue">Queue</a></li>
-		</ul>
-			<a href="{{ url_for('logout') }}" class=" mt-4 btn btn-danger btn-sm float-end">Logout</a>
+         });
+          $.ajax({
+         	url: "/stats",
+         	type: 'GET',
+         	dataType: 'json', // added data type
+         	success: function(res) {
+         			var ar=res['queue'];
+         			var arr1=[];
+         			var arr2=[];
 
-		<div class="tab-content">
-		  <div id="home" class="tab-pane fade in active">
-			  	{% with messages = get_flashed_messages() %}
-				<h3>All Devices</h3>
-			  {% if username %}
-		     <div class="row">
-			<div class="offset-md-2 col-md-8 offset-md-2">
-				<table class="table table-bordered table-striped">
-				  <thead>
-					<tr>
-						<th scope="col">#</th>
-					  <th scope="col">Devices</th>
-						 <th scope="col">select</th>
-					</tr>
-				  </thead>
-				  <tbody>
-				   {% for result in final_results['devices'] %}
-					<tr>
-					  <td>{{ loop.index}}</td>
-					  <td>{{ result}}</td>
-						  <td><div class="form-check">
-  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-</div></td>
+         			$.each(ar, function( index, value ) {
+         			arr1.push(parseInt(index));
+         			});
+         			$('input[name="livecapture"]').each(function() {
+         				  var index = $.inArray( $(this).data('name'), arr1 );
+         					if( index != -1 ) {
+         						$( this ).attr( 'checked', 'checked' );
+         						$( this ).attr( 'disabled', 'disabled' );
 
-					</tr>
-					{% endfor %}
-				  </tbody>
-				</table>
-			</div>
-		</div>
-              {% endif %}
-		  </div>
-		  <div id="files_list" class="tab-pane fade">
-				<h3>All Files</h3>
-				  {% if username %}
-				 <div class="row">
-				<div class="offset-md-2 col-md-8 offset-md-2">
-					<table class="table table-bordered table-striped" id="files">
-					  <thead>
-						<tr>
-							<th scope="col">#</th>
-						  <th scope="col">File Name</th>
-						  <th scope="col">Action</th>
-						</tr>
-					  </thead>
-					  <tbody>
+         					}
+         				});
+         		 }
+         	});
+         $('.result').hide();
+         	$(document).on('click','#start_process',function(e) {
+         	 $("#waitttAmazingLover").css("display", "block");
+         		   var list =[];
+         			$.ajax({
+         				url: "/captured",
+         				type: 'GET',
+         				dataType: 'json', // added data type
+         				success: function(res) {
+         					$.each(res.files, function (index, value)
+         					  {
+         					  filename=value.replace('captured\\','');
+         					  list.push(filename);
+         						});
 
-					  </tbody>
-					</table>
-				</div>
-			</div>
-				  {% endif %}
-		  </div>
-		  <div id="queue" class="tab-pane fade">
-			<h3>Queue Files</h3>
-				  {% if username %}
-				 <div class="row">
-				<div class="offset-md-2 col-md-8 offset-md-2">
-					<a href="javascript:void(0)" class="btn btn-md btn-info" id="start_process">Start Process</a>
-					<table class="table table-bordered table-striped" id="files_queue">
-					  <thead>
-						<tr>
-							<th scope="col">#</th>
-						  <th scope="col">File Name</th>
-						</tr>
-					  </thead>
-					  <tbody>
-
-					  </tbody>
-					</table>
-					<div class="result">
-						<h3>All Processed Files</h3>
-							<p id="files_processed">Loading…
-                             █▒▒▒▒▒▒▒▒▒</p>
-						<h3>All files in processing queue</h3>
-							<p id="files_in_queue">
-								Loading…
-								█▒▒▒▒▒▒▒▒▒
-							</p>
-
-					</div>
-
-				</div>
-			</div>
-				  {% endif %}
-		  </div>
-		</div>
-		  {% if messages %}
-		    <ul class=flashes>
-		    {% for message in messages %}
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-		         {{ message }}
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>
-		    {% endfor %}
-		    </ul>
-		  {% endif %}
-		{% endwith %}
-		{% else %}
-		<div class="alert alert-danger" role="alert">
-         You are not logged in.<a href="{{ url_for('login') }}" class="alert-link">Click here</a> to login.
-		</div>
-		{% endif %}
-		</div>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-	<script>
-	$(function() {
-	$('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
-		localStorage.setItem('activeTab', $(e.target).attr('href'));
-	});
-	var activeTab = localStorage.getItem('activeTab');
-	if(activeTab){
-		$('#myTab a[href="' + activeTab + '"]').tab('show');
-	}
-	$.ajax({
-			url: "/stats",
-			type: 'GET',
-			dataType: 'json', // added data type
-			success: function(res) {
-				  	console.log(res);
-				 }
-		    });
-	$('.result').hide();
-		$(document).on('click','.start',function(e) {
-		  	file=$(this).data('name');
-		  	$.ajax({
-			url: "/process_file?filename="+file,
-			type: 'GET',
-			dataType: 'json', // added data type
-			success: function(res) {
-				  	alert('Process added in queue');
-				  	location.reload();
-				 }
-		    });
-		});
-		$(document).on('click','#start_process',function(e) {
-		var rowCount = $('#files_queue >tbody >tr').length;
-		$('.result').show();
-			var timer = setInterval(function() {
-				$.ajax({
-					url: "/start_processing",
-					type: 'GET',
-					dataType: 'json', // added data type
-					success: function(res) {
-					      var val=res.processed;
-                            if(res.processed.length!=0){
-							$('#files_processed').text(res.processed);
-							}
-							if(res.processing.length!=0 && res.processing !='0,'){
-							$('#files_in_queue').text(res.processing);
-							}else{
-							$('#files_in_queue').text('100% ██████████');
-							}
-							if(val.length==rowCount){
-							clearInterval(timer)
-							}
-						 }
-				});
-		},6000);
+         					process_file(list);
+         					 }
+         			});
+         	});
 
 
-		});
 
-		$.ajax({
-			url: "/captured",
-			type: 'GET',
-			dataType: 'json', // added data type
-			success: function(res) {
-				$.each(res.files, function (index, value)
-				  {
-				  filename=value.replace('captured\\','');
-					 $('#files').append('<tr> <td>' + index + '</td><td>' + filename + '</td><td> <a class="start btn btn-sm btn-success" href="JavaScript:void(0)" data-name="'+ filename+'">Process File</a></td></tr>');
-				  })
-				 }
-		});
-			$.ajax({
-				url: "/process_file",
-				type: 'GET',
-				dataType: 'json', // added data type
-				success: function(res) {
-				if(res.queue ==0){
-				$('#files_queue').append('<div class="alert alert-danger" role="alert">No File found in Queue !</div>');
-				$('#start_process').hide();
-				}else{
-					$.each(res.queue, function (index, value)
-					  {
-						 $('#files_queue').append('<tr> <td>' + index + '</td><td>' + value + '</td></tr>');
-					  })
-					 }
-				}
-			});
+         	function process_file(list){
+         	var urlto= "/process_file?files="+JSON.stringify(list);
+         		$.ajax({
+         			url: urlto,
+         			type: 'GET',
+         			success: function(res) {
+         			$("#waitttAmazingLover").css("display", "none");
+         			$('.result').show();
+         			$('#files_in_queue').text(res.processed.length);
+         			$('#files_in_processing').text(res.processing);
+         			$('#files_in_processed').text(res.queue.length);
+
+         			}
+         		});
+         	}
 
 
-	});
 
-	</script>
-	</body>
+         });
+
+      </script>
+   </body>
 </html>
