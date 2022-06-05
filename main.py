@@ -132,13 +132,18 @@ def get_stats():
 
 
 @app.route('/update_interval', methods=['GET'])
-def refresh_tshark():
+def interval_setup():
     global interval
     int_val = request.args.get('interval')
     if int_val:
         interval = str(int_val)
+    return {"interval": interval}
+
+
+@app.route('/refresh', methods=['GET'])
+def refresh_app():
     refresh()
-    return {"status": "complete"}
+    return {"refresh": "completed"}
 
 
 @app.route('/deleteall', methods=['GET'])
