@@ -71,7 +71,7 @@ def cap_file_queue():
     try:
         filenames = request.get_json(force=True)['files']
     except:
-        return {"queue": files_in_queue}
+        return {"queue": files_in_queue, "processing": len(processing), "processed": processed_files}
     print(filenames)
     if filenames is None:
         print("it's none")
