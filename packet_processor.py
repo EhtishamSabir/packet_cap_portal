@@ -132,8 +132,9 @@ def refresh():
 
 def deleteall(sure=False):
     try:
-        refresh()
+
         if sure:
+            refresh()
             subprocess.check_output("rm -r /captured ", shell=True)
             subprocess.check_output("mkdir /captured ", shell=True)
         else:

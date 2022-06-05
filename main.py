@@ -134,7 +134,7 @@ def refresh_tshark():
 
 
 @app.route('/deleteall', methods=['GET'])
-def refresh_tshark():
+def delete_files():
     global interval
     int_val = request.args.get('all')
     if int_val:
