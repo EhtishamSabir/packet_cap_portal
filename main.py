@@ -70,7 +70,8 @@ def get_files(pth='/captured', ext=".pcapng"):
 def cap_file_queue():
     global files_in_queue
     try:
-        filenames = request.get_json(force=True)['files']
+        filenames = request.json['files']
+        print(filenames)
     except:
         return {"queue": len(files_in_queue), "processing": len(processing), "processed": len(processed_files)}
     print(filenames)

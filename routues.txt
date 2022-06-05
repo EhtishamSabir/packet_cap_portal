@@ -47,7 +47,7 @@ if you call /deleteall it will only delete all processed files from the captured
 >>>>>>>>>>>
 we need two buttons
 1.clean all captured files.
-2. delete all processed files.
+2.delete all processed files.
 #######################################################
 create another button to stop all running threads by calling this below url without any parameter.
 /refresh
