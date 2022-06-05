@@ -68,7 +68,7 @@ def get_files(pth='/captured', ext=".pcapng"):
 @app.route('/process_file', methods=['GET'])
 def cap_file_queue():
     global files_in_queue
-    filenames = request.get_json(force=True)['filename']
+    filenames = request.get_json(force=True)['files']
     print(filenames)
     if filenames is None:
         print("it's none")
