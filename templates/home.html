@@ -100,9 +100,6 @@
 						<a class="nav-link " href="#">Interval in seconds</a>
 					  </li>
 					  <li class="nav-item">
-						<a class="nav-link " href="#">Folds update</a>
-					  </li>
-					  <li class="nav-item">
 						<a class="nav-link " href="#">Stop all thread</a>
 					  </li>
 						 <li class="nav-item">
@@ -220,16 +217,18 @@
 
 
          	function process_file(list){
-         	var urlto= "/process_file?files="+JSON.stringify(list);
          		$.ajax({
-         			url: urlto,
-         			type: 'GET',
+         			url: "/process_file",
+         			type: 'POST',
+         			contentType: 'application/json',
+         			data: JSON.stringify( { "files":list}),
          			success: function(res) {
+         			console.log(res);
          			$("#waitttAmazingLover").css("display", "none");
          			$('.result').show();
-         			$('#files_in_queue').text(res.processed.length);
+         			$('#files_in_queue').text(res.processed);
          			$('#files_in_processing').text(res.processing);
-         			$('#files_in_processed').text(res.queue.length);
+         			$('#files_in_processed').text(res.queue);
 
          			}
          		});
