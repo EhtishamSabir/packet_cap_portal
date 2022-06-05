@@ -93,7 +93,11 @@ def process_cap_file():
         return {"processed": processed_files,
                 "processing": [len(processing), [x['file'] + "|" + x['time'] for x in processing]],
                 "queue": files_in_queue}
-    for filename in files_in_queue[:20]:
+    try:
+        proc = files_in_queue[:20]
+    except:
+        proc = files_in_queue
+    for filename in proc:
         print("file in queue")
         t = threading.Thread(target=process_file, args=(filename,))
         t.start()

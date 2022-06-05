@@ -121,8 +121,11 @@ def refresh():
     try:
         subprocess.check_output("pkill tshark", shell=True)
         process_queue.clear()
+        processed_files.clear()
+        process_queue.clear()
     except subprocess.CalledProcessError:
         return
+    syn_config()
     return
 
 
@@ -136,8 +139,10 @@ def deleteall(sure=False):
         else:
             for file in processed_files:
                 os.remove(file)
+            processed_files.clear()
     except subprocess.CalledProcessError:
         return
+    syn_config()
     return
 
 

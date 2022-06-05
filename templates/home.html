@@ -2,11 +2,22 @@
    <head>
       <title>Home</title>
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <style>
+      #preloader {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  background: #333 url('https://driversinsured.com/wp-content/uploads/2022/04/loading.svg') no-repeat center center;
+}
+</style>
    </head>
    <body>
       <div class="container mt-3">
          {% if username %}
-<!--         <a href="{{ url_for('logout') }}" class=" mt-4 btn btn-danger btn-sm float-end">Logout</a>-->
          <ul class="nav nav-tabs" style="width:750px !important;" id="mytab">
             <li class="active"><a data-toggle="tab" href="#home">All Devices</a></li>
             <li><a data-toggle="tab" href="#queue">Queue</a></li>
@@ -72,6 +83,7 @@
                      </div>
                   </div>
                   <div class="col-md-6">
+                     <a href="javascript:void(0)" class="btn btn-md btn-info" id="add_queue">Add to Queue</a>
                      <a href="javascript:void(0)" class="btn btn-md btn-info" id="start_process">Start Process</a>
                   </div>
                </div>
@@ -85,6 +97,9 @@
                         <h3>Queue: <span id="files_in_queue"></span></h3>
                         <h3>Processing: <span id="files_in_processing"></span></h3>
                         <h3>Processed: <span id="files_in_processed"></span></h3>
+                        <div class="alert alert-warning" role="alert">
+                          <p>Note: Start processing will only execute maximum 20 threads for each of 20 files.once processing of 20 is complete you can start processing again. from the button.</p>
+                        </div>
                      </div>
                   </div>
                </div>
@@ -92,18 +107,33 @@
             </div>
             <div id="settings" class="tab-pane fade">
                <h3>Settings</h3>
+               <div class="alert alert-success d-none" id="msg" role="alert">
+                 Action Completed!
+               </div>
                {% if username %}
                <div class="row">
-                  <div class="offset-md-5 col-md-2 offset-md-5">
+                  <div class="offset-md-4 col-md-4 offset-md-4">
                      <ul class="nav flex-column">
 					  <li class="nav-item">
-						<a class="nav-link " href="#">Interval in seconds</a>
-					  </li>
-					  <li class="nav-item">
-						<a class="nav-link " href="#">Stop all thread</a>
+						<a class="nav-link " href="javascript:void(0);" id="cleanCaptured">clean all captured files</a>
 					  </li>
 						 <li class="nav-item">
-						<a class="nav-link " href="#">Delete Processed</a>
+						<a class="nav-link " href="javascript:void(0);" id="deleteProcessed">delete all processed files</a>
+					  </li>
+                         <li class="nav-item">
+						<a class="nav-link " href="javascript:void(0);" id="refreshApp">Refresh App</a>
+					  </li>
+                         <li class="nav-item">
+                         <div class="row">
+                         <div class="col">
+                           <input type="text" id="intervals_val" class="form-control" placeholder="Intervals in Seconds">
+                            <small id="intval" class="form-text text-muted"></small>
+                         </div>
+                         <div class="col">
+                           <a class="nav-link" href="javascript:void(0);" id="interval">Update Interval</a>
+                         </div>
+                       </div>
+
 					  </li>
 					</ul>
                   </div>
@@ -132,6 +162,7 @@
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
       <script>
          $(function() {
+         $('#preloader').addClass('d-none');
          $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
          	localStorage.setItem('activeTab', $(e.target).attr('href'));
          });
@@ -139,10 +170,94 @@
          if(activeTab){
          	$('#myTab a[href="' + activeTab + '"]').tab('show');
          }
+          var list =[];
+         			$.ajax({
+         				url: "/captured",
+         				type: 'GET',
+         				dataType: 'json', // added data type
+         				success: function(res) {
+         					$.each(res.files, function (index, value)
+         					  {
+         					  filename=value.replace('captured\\','');
+         					  list.push(filename);
+         						});
+
+         					process_file(list);
+         					 }
+         			});
+          $('#cleanCaptured').click(function(){
+                  		$.ajax({
+         		url: "/deleteall?all=true",
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+                 $("#msg").show().delay(2000).fadeOut();
+
+         			 }
+         	    });
+
+         });
+          $('#deleteProcessed').click(function(){
+                  		$.ajax({
+         		url: "/deleteall",
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+                 $("#msg").show().delay(2000).fadeOut();
+
+         			 }
+         	    });
+
+         });
+             $('#start_process').click(function(){
+             console.log('clicked');
+                  		$.ajax({
+         		url: "/start_processing",
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+
+         			 }
+         	    });
+
+         });
+            $('#refreshApp').click(function(){
+                  		$.ajax({
+         		url: "/refresh",
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+                 $("#msg").show().delay(2000).fadeOut();
+
+         			 }
+         	    });
+
+         });
+               $('#interval').click(function(){
+              var interval= $('#intervals_val').val();
+                  		$.ajax({
+         		url: "/update_interval?interval="+interval,
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+                 $("#msg").show().delay(2000).fadeOut();
+
+         			 }
+         	    });
+
+         });
+		       $.ajax({
+         		url: "/update_interval",
+         		type: 'GET',
+         		dataType: 'json', // added data type
+         		success: function(res) {
+         	      $('#intval').text('Current Interval : '+res.interval+ ' Sec');
+
+         			 }
+         	    });
          $('#livecapture').click(function(){
          	$('input[name="livecapture"]:checked').each(function() {
-           		var name=$(this).data("name")
-                  <!--   	ajax		-->
+           		var name=$(this).data("name");
                   		$.ajax({
          		url: "start_livecapture?interface_id="+name,
          		type: 'GET',
@@ -151,14 +266,12 @@
          			  location.reload();
          			 }
          	    });
-         		<!--      end    -->
          	});
 
          });
          $('#stopcapture').click(function(){
          	$('input[name="stopcapture"]:checked').each(function() {
-           		var name=$(this).data("name")
-                  <!--   	ajax		-->
+           		var name=$(this).data("name");
                   		$.ajax({
          		url: "/stop_capture?interface_id="+name,
          		type: 'GET',
@@ -168,7 +281,6 @@
 
          			 }
          	    });
-         		<!--      end    -->
          	});
 
          });
@@ -195,7 +307,8 @@
          		 }
          	});
          $('.result').hide();
-         	$(document).on('click','#start_process',function(e) {
+         	$(document).on('click','#add_queue',function(e) {
+                 $('.result').hide();
          	 $("#waitttAmazingLover").css("display", "block");
          		   var list =[];
          			$.ajax({
@@ -223,7 +336,6 @@
          			contentType: 'application/json',
          			data: JSON.stringify( { "files":list}),
          			success: function(res) {
-         			console.log(res);
          			$("#waitttAmazingLover").css("display", "none");
          			$('.result').show();
          			$('#files_in_queue').text(res.processed);
