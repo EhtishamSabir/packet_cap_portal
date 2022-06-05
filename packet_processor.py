@@ -94,7 +94,11 @@ def start_capture_into_flie(filename, interface):
 
 def stop_capture(interface):
     global process_queue
-    for pid in queue[interface]['process']:
+    try:
+        process = queue[interface]['process']
+    except KeyError:
+        return {"queue": queue}
+    for pid in process:
         print("trying to stop", pid, ":::")
         try:
             o = subprocess.check_output(f"kill -9 {pid}", shell=True).decode("utf-8")
@@ -128,7 +132,8 @@ def refresh():
 
 def get_devices():
     resp = subprocess.check_output('tshark -D', shell=True).decode('utf-8')
-    return {"devices": resp.splitlines()}
+
+    return {"devices": ['.'.join(x.split('.')[1:]) for x in resp.splitlines()]}
 
 
 if __name__ == '__main__':

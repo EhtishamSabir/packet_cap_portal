@@ -27,18 +27,19 @@
 				  <thead>
 					<tr>
 						<th scope="col">#</th>
-					  <th scope="col">IP</th>
-					  <th scope="col">LAN_IP</th>
-					  <th scope="col">MAC_ADDRESS</th>
+					  <th scope="col">Devices</th>
+						 <th scope="col">select</th>
 					</tr>
 				  </thead>
 				  <tbody>
-				   {% for result in final_results %}
+				   {% for result in final_results['devices'] %}
 					<tr>
-						<td>{{loop.index}}</td>
-					  <td>{{ result.IP}}</td>
-					  <td>{{ result.LAN_IP}}</td>
-					  <td>{{ result.MAC_ADDRESS}}</td>
+					  <td>{{ loop.index}}</td>
+					  <td>{{ result}}</td>
+						  <td><div class="form-check">
+  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+</div></td>
+
 					</tr>
 					{% endfor %}
 				  </tbody>
@@ -130,6 +131,14 @@
 	if(activeTab){
 		$('#myTab a[href="' + activeTab + '"]').tab('show');
 	}
+	$.ajax({
+			url: "/stats",
+			type: 'GET',
+			dataType: 'json', // added data type
+			success: function(res) {
+				  	console.log(res);
+				 }
+		    });
 	$('.result').hide();
 		$(document).on('click','.start',function(e) {
 		  	file=$(this).data('name');

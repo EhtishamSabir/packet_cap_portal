@@ -108,11 +108,12 @@ def start_livecapture():
         interface_id = int(interface_id)
     except TypeError:
         return "not valid ID"
-    return start_capture_into_flie(f"today{interface_id}", str(interface_id), '10')
+    return start_capture_into_flie(f"today{interface_id}", str(interface_id))
 
 
 @app.route('/stop_capture', methods=['GET'])
 def stop_livecapture():
+
     interface_id = request.args.get('interface_id')
     return stop_capture(str(interface_id))
 
