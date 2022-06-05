@@ -51,5 +51,6 @@ we need two buttons
 #######################################################
 create another button to stop all running threads by calling this below url without any parameter.
 /refresh
+> stop all threads for processings
 
 
