@@ -16,6 +16,7 @@ processing = []
 capture_processing = {'interface': []}
 queue = {}
 process_queue = []
+interval = 60
 
 try:
     files_in_queue = CONFIG_DATA['files_in_queue']
@@ -25,6 +26,7 @@ try:
     capture_processing = CONFIG_DATA['capture_processing']
     queue = CONFIG_DATA['queue']
     process_queue = CONFIG_DATA['process_queue']
+    interval =  CONFIG_DATA['interval']
 
 except KeyError:
     CONFIG_DATA['files_in_queue'] = []
@@ -33,6 +35,8 @@ except KeyError:
     CONFIG_DATA['capture_processing'] = {'interface': []}
     CONFIG_DATA['queue'] = {}
     CONFIG_DATA['process_queue'] = []
+    # 1 hour
+    CONFIG_DATA['interval'] = 60 * 60
 
 
 def syn_config():
@@ -42,6 +46,7 @@ def syn_config():
     CONFIG_DATA['capture_processing'] = capture_processing
     CONFIG_DATA['queue'] = queue
     CONFIG_DATA['process_queue'] = process_queue
+    CONFIG_DATA['interval'] = interval
     print(CONFIG_DATA)
     get_config(CONFIG_DATA)
     return

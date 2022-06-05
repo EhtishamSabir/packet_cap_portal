@@ -67,7 +67,8 @@ def get_files(pth='/captured', ext=".pcapng"):
 @app.route('/process_file', methods=['GET'])
 def cap_file_queue():
     global files_in_queue
-    filenames = list(request.args.get('filenames'))
+    filenames = request.get_json(force=True)['filename']
+    print(filenames)
     if filenames is None:
         print("it's none")
         return {"queue": files_in_queue}
@@ -121,5 +122,14 @@ def get_stats():
     return live_stats()
 
 
-refresh()
-app.run(host='0.0.0.0', port=80, debug=True)
+@app.route('/stats', methods=['GET'])
+def refresh_tshark():
+    global interval
+    int_val = request.args.get('interval')
+    if int_val:
+        interval = str(int_val)
+    refresh()
+    return {"status": "complete"}
+
+
+app.run(host='0.0.0.0', port=88, debug=True)

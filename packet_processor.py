@@ -68,12 +68,12 @@ def process_file(filename):
     return
 
 
-def start_capture_into_flie(filename, interface, interval_seconds):
+def start_capture_into_flie(filename, interface):
     global process_queue
     # live capture example
     if interface not in capture_processing['interface']:
         print("start")
-        p = subprocess.Popen(f'tshark -i {interface} -b interval:{interval_seconds} -w /captured/{filename}.pcapng',
+        p = subprocess.Popen(f'tshark -i {interface} -b interval:{interval} -w /captured/{filename}.pcapng',
                              shell=True)
         o = subprocess.check_output(f"ps -ax | grep tshark", shell=True).decode("utf-8")
         print(o)
@@ -127,7 +127,8 @@ def refresh():
 
 
 def get_devices():
-    return subprocess.check_output('tshark -D', shell=True).decode('utf-8')
+    resp = subprocess.check_output('tshark -D', shell=True).decode('utf-8')
+    return {"devices": resp.splitlines()}
 
 
 if __name__ == '__main__':
