@@ -4,24 +4,22 @@ start_livecapture?interface_id=1
 
 To start processing button
 
-get all files names calculate number of files.
+get all files names from /captured
 
-then call 
-
+now post these file names into /process_file route.
 process_file route with ajax having  {"files": list/array of file names}
 
+To start processing call /start_processing
 Now to get processed files or QUEUE for processing files call
-
-you can call 
-
-start_processing route it will start processing files & will return like > 
-
+you can call
+start_processing route it will start processing files & will return like >
 {"processed": [],
             "processing": [],
             "queue": []}
 
-if you just want information for queue for processing files
 
+
+if you just want information for queue for processing files
 you can just call this route without parameters
 
 process_file
