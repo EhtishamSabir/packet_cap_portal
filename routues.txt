@@ -1,0 +1,31 @@
+To start capturing packets on devices... using their index ID
+start_livecapture?interface_id=1
+
+
+To start processing button
+
+get all files names calculate number of files.
+
+then call 
+
+process_file route with ajax having  {"files": list/array of file names}
+
+Now to get processed files or QUEUE for processing files call
+
+you can call 
+
+start_processing route it will start processing files & will return like > 
+
+{"processed": [],
+            "processing": [],
+            "queue": []}
+
+if you just want information for queue for processing files
+
+you can just call this route without parameters
+
+process_file
+
+{"processed": [],
+            "processing": 0,
+            "queue": []}
