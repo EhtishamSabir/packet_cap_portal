@@ -71,7 +71,7 @@ def cap_file_queue():
     try:
         filenames = request.get_json(force=True)['files']
     except:
-        return {"queue": files_in_queue, "processing": len(processing), "processed": processed_files}
+        return {"queue": len(files_in_queue), "processing": len(processing), "processed": len(processed_files)}
     print(filenames)
     if filenames is None:
         print("it's none")
@@ -81,7 +81,7 @@ def cap_file_queue():
             filenames.remove(each_file)
     files_in_queue = files_in_queue + filenames
     syn_config()
-    return {"queue": files_in_queue, "processing": len(processing), "processed": processed_files}
+    return {"queue": len(files_in_queue), "processing": len(processing), "processed": len(processed_files)}
 
 
 @app.route('/start_processing', methods=['GET'])
