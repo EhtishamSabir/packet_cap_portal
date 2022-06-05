@@ -50,6 +50,6 @@ we need two buttons
 2. delete all processed files.
 #######################################################
 create another button to stop all running threads by calling this below url without any parameter.
-/update_interval
+/refresh
 
 
