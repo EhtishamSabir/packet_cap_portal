@@ -1,6 +1,7 @@
 from pathlib import Path
 from flask import Flask, render_template, request, make_response, flash, redirect
-from packet_processor import process_file, start_capture_into_flie, stop_capture, refresh, live_stats, get_devices
+from packet_processor import process_file, start_capture_into_flie, stop_capture, refresh, live_stats, get_devices, \
+    deleteall
 import threading
 from datetime import datetime
 from config_data import *
@@ -113,7 +114,6 @@ def start_livecapture():
 
 @app.route('/stop_capture', methods=['GET'])
 def stop_livecapture():
-
     interface_id = request.args.get('interface_id')
     return stop_capture(str(interface_id))
 
@@ -130,6 +130,17 @@ def refresh_tshark():
     if int_val:
         interval = str(int_val)
     refresh()
+    return {"status": "complete"}
+
+
+@app.route('/deleteall', methods=['GET'])
+def refresh_tshark():
+    global interval
+    int_val = request.args.get('all')
+    if int_val:
+        deleteall(sure=True)
+    else:
+        deleteall()
     return {"status": "complete"}
 
 

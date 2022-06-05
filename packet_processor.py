@@ -130,9 +130,22 @@ def refresh():
     return
 
 
+def deleteall(sure=False):
+    try:
+        refresh()
+        if sure:
+            subprocess.check_output("rm -r /captured ", shell=True)
+            subprocess.check_output("mkdir /captured ", shell=True)
+        else:
+            for file in processed_files:
+                os.remove(file)
+    except subprocess.CalledProcessError:
+        return
+    return
+
+
 def get_devices():
     resp = subprocess.check_output('tshark -D', shell=True).decode('utf-8')
-
     return {"devices": ['.'.join(x.split('.')[1:]) for x in resp.splitlines()]}
 
 
