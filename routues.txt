@@ -27,3 +27,29 @@ process_file
 {"processed": [],
             "processing": 0,
             "queue": []}
+
+
+##########################################################
+interval is basically values is in second we need intput box which will take input in seconds
+
+it will then call /update_interval with get method using value interval
+
+for example this will set interval as 1 hour which is equals to 3600 seconds
+/update_interval?interval=3600
+
+
+####################################
+/deleteall?all=true
+
+it will delete all captured files from the folder.
+
+if you call /deleteall it will only delete all processed files from the captured folder.
+>>>>>>>>>>>
+we need two buttons
+1.clean all captured files.
+2. delete all processed files.
+#######################################################
+create another button to stop all running threads by calling this below url without any parameter.
+/update_interval
+
+

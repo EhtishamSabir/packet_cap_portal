@@ -66,7 +66,7 @@ def get_files(pth='/captured', ext=".pcapng"):
     return {"files": files_path}
 
 
-@app.route('/process_file', methods=['GET'])
+@app.route('/process_file', methods=['GET', 'POST'])
 def cap_file_queue():
     global files_in_queue
     try:
@@ -81,13 +81,18 @@ def cap_file_queue():
         if each_file in files_in_queue:
             filenames.remove(each_file)
     files_in_queue = files_in_queue + filenames
+    files_in_queue = list(set(files_in_queue))
     syn_config()
     return {"queue": len(files_in_queue), "processing": len(processing), "processed": len(processed_files)}
 
 
 @app.route('/start_processing', methods=['GET'])
 def process_cap_file():
-    for filename in files_in_queue:
+    if len(processing) > 18:
+        return {"processed": processed_files,
+                "processing": [len(processing), [x['file'] + "|" + x['time'] for x in processing]],
+                "queue": files_in_queue}
+    for filename in files_in_queue[:20]:
         print("file in queue")
         t = threading.Thread(target=process_file, args=(filename,))
         t.start()
@@ -99,7 +104,6 @@ def process_cap_file():
             processing.remove(process)
             processed_files.append(process['file'])
     CONFIG_DATA['files_in_queue'] = files_in_queue
-    CONFIG_DATA.sync()
     syn_config()
     return {"processed": processed_files,
             "processing": [len(processing), [x['file'] + "|" + x['time'] for x in processing]],
@@ -127,7 +131,7 @@ def get_stats():
     return live_stats()
 
 
-@app.route('/stats', methods=['GET'])
+@app.route('/update_interval', methods=['GET'])
 def refresh_tshark():
     global interval
     int_val = request.args.get('interval')

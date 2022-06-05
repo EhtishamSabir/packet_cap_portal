@@ -36,10 +36,6 @@ def feilds():
 
 def process_file(filename):
     # add check if file exists
-    print('runing file ', filename)
-    sleep(10 * 1)
-    print("file is finished")
-    return
 
     options = feilds
 
@@ -65,7 +61,7 @@ def process_file(filename):
                 resp_list.clear()
     except OSError:
         print("processing finished.")
-    return
+    return {"completed": "true"}
 
 
 def start_capture_into_flie(filename, interface):
