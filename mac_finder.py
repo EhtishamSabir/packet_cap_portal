@@ -21,7 +21,7 @@ def get_mac_info(mac_addr):
     return response.json()
 
 
-def save_mac(db, macs):
+def save_mac(db, macs, tag='src'):
     for mac in macs:
         print(mac)
         res = db.mac_info.find({'_id': mac})
@@ -55,14 +55,12 @@ def save_mac(db, macs):
 def device_capture():
     db = get_client()
     macs = get_unique_mac(isrc=False)
-    save_mac(db, macs)
+    save_mac(db, macs, tag='src')
     macs = get_unique_mac()
-    save_mac(db, macs)
+    save_mac(db, macs, tag='dst')
     return
 
 
 def get_devices():
     db = get_client()
     return list(db.mac_info.find({}))
-
-
