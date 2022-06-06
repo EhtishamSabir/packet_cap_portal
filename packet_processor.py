@@ -40,8 +40,14 @@ def process_file(filename):
     options = feilds
 
     # reading captured file
-    cap = pyshark.FileCapture(filename)
+    if os.path.exists(filename):
+        try:
+            cap = pyshark.FileCapture(filename)
+        except:
+            return {"completed": "true"}
 
+    else:
+        return {"completed": "true"}
     # live capture example
     # cap = pyshark.LiveCapture(display_filter="tcp.port == 80")
     db = get_client()
@@ -152,4 +158,4 @@ def get_devices():
 
 
 if __name__ == '__main__':
-    start_capture_into_flie("today", '1', '10')
+    start_capture_into_flie("today", '1')

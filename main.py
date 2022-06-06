@@ -5,6 +5,7 @@ from packet_processor import process_file, start_capture_into_flie, stop_capture
 import threading
 from datetime import datetime
 from config_data import *
+from mac_finder import get_devices, device_capture
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SUPER SECRET'
@@ -75,9 +76,9 @@ def cap_file_queue():
     except:
         return {"queue": len(files_in_queue), "processing": len(processing), "processed": len(processed_files)}
     print(filenames)
-    if filenames is None:
+    if filenames is None or len(filenames) == 0:
         print("it's none")
-        return {"queue": files_in_queue}
+        return {"queue": len(files_in_queue), "processing": len(processing), "processed": len(processed_files)}
     for each_file in filenames:
         if each_file in files_in_queue:
             filenames.remove(each_file)
@@ -110,9 +111,9 @@ def process_cap_file():
             processed_files.append(process['file'])
     CONFIG_DATA['files_in_queue'] = files_in_queue
     syn_config()
-    return {"processed": processed_files,
+    return {"processed": len(processed_files),
             "processing": [len(processing), [x['file'] + "|" + x['time'] for x in processing]],
-            "queue": files_in_queue}
+            "queue": len(files_in_queue)}
 
 
 @app.route('/start_livecapture', methods=['GET'])
@@ -149,6 +150,17 @@ def interval_setup():
 def refresh_app():
     refresh()
     return {"refresh": "completed"}
+
+
+@app.route('/run_mac_capture', methods=['GET'])
+def run_mac_capture():
+    threading.Thread(target=device_capture).start()
+    return {"run_mac_capture": "running in background"}
+
+
+@app.route('/get_captured_devices', methods=['GET'])
+def get_captured_devices():
+    return render_template('captured_devices.html', result=get_devices())
 
 
 @app.route('/deleteall', methods=['GET'])

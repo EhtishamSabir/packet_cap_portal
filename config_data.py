@@ -38,7 +38,8 @@ except KeyError:
     # 1 hour
     CONFIG_DATA['interval'] = 60 * 60
 
-
+except TypeError:
+    pass
 def syn_config():
     CONFIG_DATA['files_in_queue'] = files_in_queue
     CONFIG_DATA['processed_files'] = processed_files

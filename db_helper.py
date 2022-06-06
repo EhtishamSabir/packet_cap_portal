@@ -15,6 +15,8 @@ def get_client():
         db.create_collection('config_data')
     if 'fields_collection' not in db.list_collection_names():
         db.create_collection('fields_collection')
+    if 'mac_info' not in db.list_collection_names():
+        db.create_collection('mac_info')
     return db
 
 
@@ -33,4 +35,12 @@ def get_config(data=None):
         return {}
 
 
-print(get_config())
+def get_unique_mac(isrc=True):
+    db = get_client()
+    if isrc:
+        return db.fields_collection.distinct('eth.src')
+    else:
+        return db.fields_collection.distinct('eth.dst')
+
+
+
