@@ -25,6 +25,9 @@ def save_mac(db, macs, tag='src'):
     for mac in macs:
         print(mac)
         res = db.mac_info.find({'_id': mac})
+        db.mac_info.replace_one({'_id': mac}, {'_id': mac,
+                                               "data": res[0]['data'],
+                                               'tag': tag})
         try:
             print(res[0]['data'])
             if res[0]['data']['message']:
@@ -46,11 +49,12 @@ def save_mac(db, macs, tag='src'):
 
         try:
             db.mac_info.insert_one({'_id': mac,
-                                    "data": resp})
+                                    "data": resp,
+                                    'tag': tag})
         except pymongo.errors.DuplicateKeyError:
             db.mac_info.replace_one({'_id': mac}, {'_id': mac,
-                                                   "data": resp})
-
+                                                   "data": resp,
+                                                   'tag': tag})
 
 def device_capture():
     db = get_client()
@@ -59,7 +63,6 @@ def device_capture():
     macs = get_unique_mac()
     save_mac(db, macs, tag='dst')
     return
-
 
 def get_devices():
     db = get_client()

@@ -11,20 +11,20 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SUPER SECRET'
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
     username = request.cookies.get('username')
     if username:
-        # return render_template('home.html', username=username)
-        return redirect("/devices")
-    return render_template('home.html')
+        final_results = get_devices()
+        return render_template('home.html',
+                               username=username,
+                               final_results=final_results)
+    else:
+        return redirect('/login')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    username = request.cookies.get('username')
-    if username:
-        return render_template('login.html', username=username)
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -45,16 +45,15 @@ def logout():
     return resp
 
 
-@app.route('/devices', methods=['GET'])
-def devices():
-    final_results = get_devices()
-
-    username = request.cookies.get('username')
-    if username:
-        # print(final_results)
-        return render_template('home.html',
-                               username=username,
-                               final_results=final_results)
+# @app.route('/devices', methods=['GET'])
+# def devices():
+#     username = request.cookies.get('username')
+#     final_results = get_devices()
+#     if username:
+#         return render_template('home.html',
+#                                username=username,
+#                                final_results=final_results)
+#     return redirect('/login')
 
 
 @app.route('/captured', methods=['GET'])

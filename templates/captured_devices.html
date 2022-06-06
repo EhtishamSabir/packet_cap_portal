@@ -1,57 +1,92 @@
 <html>
 <head>
     <title>Home</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"/>
-    <style>
-      #preloader {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 999;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  background: #333 url('https://driversinsured.com/wp-content/uploads/2022/04/loading.svg') no-repeat center center;
-}
-
-
-
-
-
-
-    </style>
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"/>
 </head>
 <body>
-{% block content %}
-<table>
-    <tr>
-        <th>Device MAC</th>
-        <th>name</th>
-        <th>address</th>
-        <th>hex</th>
-    </tr>
-    {% for r in result %}
-    <tr>
-        <td>{{ r._id }}</td>
-        {% for d in r.data.result %}
-        <td>{{ d.name }}</td>
-        <td>{{ d.address }}</td>
-        <td>{{ d.hex }}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
-{% endblock %}
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
+<div class="container">
+         <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <!-- Brand and toggle get grouped for better mobile display -->
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Dashboard</a>
+          </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+               <ul class="nav navbar-nav">
+                 <li ><a href="/">Home <span class="sr-only">(current)</span></a></li>
+                  <li class="active"><a href="/get_captured_devices">Captured Devices</a></li>
+                 <li><a href="{{ url_for('logout') }}">Logout</a></li>
+               </ul>
+
+             </div><!-- /.navbar-collapse -->
+           </div><!-- /.container-fluid -->
+         </nav>
+    <div class="row">
+        <div class="offset-md-1 col-md-10 offset-md-1">
+            {% block content %}
+            <table class="table table-bordered table-striped" id="mytable">
+                <thead>
+                <tr>
+                    <th scope="col">Device MAC</th>
+                    <th scope="col">up/down</th>
+                    <th scope="col">name</th>
+                    <th scope="col">address</th>
+                    <th scope="col">hex</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in result %}
+                <tr>
+                    <td>{{ r._id }}</td>
+                    <td>{{ r.tag }}</td>
+
+                    {% if r.data.result[0]|length > 0 %}
+
+                    {% for d in r.data.result %}
+
+                    <td>{{ d.name }}</td>
+                    <td>{{ d.address }}</td>
+                    <td>{{ d.hex }}</td>
+
+                    {% endfor %}
+
+                    {% else %}
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endblock %}
+
+        </div>
+    </div>
+</div>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#mytable').DataTable({
+           "pageLength": 100
+        });
+   });
+
+
+</script>
+
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 </body>
 
 </html>
